@@ -9,7 +9,7 @@ generator client {
 
 model Author {
     id              Int     @id @default(autoincrement())
-    name            String
+    name            String  @unique
     bio             String?
     birthdate       DateTime?
 
@@ -18,7 +18,7 @@ model Author {
 
 model Book {
     id              Int     @id @default(autoincrement())
-    title           String
+    title           String  @unique
     authorId        Int
     genre           String?
     published_year  Int?
