@@ -25,17 +25,17 @@ model Book {
     price           Int?
     stock           Int?
 
-    author          Author  @relation(fields: [authorId], references: [id])
+    author          Author  @relation(fields: [authorId], references: [id], onDelete: Cascade)
     reviews         BookReview[]
 }
 
 model BookReview {
     id              Int         @id @default(autoincrement())
-    bookId         Int 
+    bookId          Int 
     review_text     String?
     rating          Int
     reviewer_name   String?
     review_date     DateTime    @default(now())
 
-    book            Book        @relation(fields: [bookId], references: [id])    
+    book            Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)    
 }
