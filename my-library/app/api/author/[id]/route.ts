@@ -3,18 +3,8 @@
 */
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { z } from "zod";
 
 const prisma = new PrismaClient();
-const authorValidation = z.object({
-    name: z.string().min(1).refine(async (current) => {
-        return (await prisma.author.count({
-            where: {
-                name: current
-            }
-        }) < 2)
-    }, "Author Sudah Ada")
-});
 
 // Read
 export const GET = async (request: Request, context: any) => {
@@ -64,7 +54,6 @@ export const PUT = async (request: Request, context: any) => {
         }
 
         const body = await request.json();
-        await authorValidation.parseAsync(body);
         const updatedAuthor = await prisma.author.update({
             where: {
                 id: authorId

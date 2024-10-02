@@ -39,6 +39,40 @@ export const GET = async (request: Request, context: any) => {
 }
 
 // Update
+export const PUT = async (request: Request, context: any) => {
+    try {
+        const params = context.params;
+        const bookId = Number(params['id']);
+        console.log(bookId);
+        if (!bookId) {
+            return new NextResponse(
+                JSON.stringify(
+                    { message: "Book ID Not Found" },
+                ),
+                { status: 400 }
+            );
+        }
+
+        const body = await request.json();
+        const updatedBook = await prisma.book.update({
+            where: {
+                id: bookId
+            }, 
+            data: body
+        })
+
+        return new NextResponse(
+            JSON.stringify({"message": "Update Book is Successful"}), 
+            {status: 200}
+        );
+        
+    } catch (error: any) {
+        return new NextResponse(
+            "Error in Fetching Author, message: " + error.message, 
+            { status: 500 }
+        );
+    }
+}
 
 // Delete
 export const DELETE = async (request: Request, context: any) => {
