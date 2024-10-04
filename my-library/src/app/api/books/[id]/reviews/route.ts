@@ -3,24 +3,26 @@
 */
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import BookReviewRepository from "@/src/lib/repositories/BookReviewRepository";
+import { z } from "zod";
 
 const prisma = new PrismaClient();
+const bookReviewValidation = z.object({
+    review_text: z.string().min(1)
+});
 
 // Create
 export const POST = async (request: Request) => {
     try {
-        // const params = context.params;
-        // const bookId = Number(params['id']);
-        // console.log(bookId);
-
-        const body = await request.json();
-        console.log(body);
-        const review = await prisma.bookReview.create({
-            data: body
-        });
+        const requestBody = await request.json();
+        console.log(requestBody); 
+        const review = await new BookReviewRepository().add(requestBody, bookReviewValidation);
+        // const review = await prisma.bookReview.create({
+        //     data: requestBody
+        // });
 
         return new NextResponse(
-            JSON.stringify({"messages": "Creating Review Is Successful"}), 
+            JSON.stringify(review), 
             {status: 200}
         )
     } catch (error: any) {
@@ -34,30 +36,22 @@ export const POST = async (request: Request) => {
 // Read
 export const GET = async (request: Request, context: any) => {
     try {
-        const params = context.params;
-        const bookId = Number(params['id']);
-        console.log(bookId);
-        if (!bookId) {
-            return new NextResponse(
-                JSON.stringify(
-                    { message: "Movie ID Not Found" },
-                ),
-                { status: 400 }
-            );
-        }
-        const bookReviews = await prisma.bookReview.findMany({
+        const bookId = Number(context.params['id']);
+        console.log(bookId); // For Debugging Purposes
+        
+        const reviews = await new BookReviewRepository().getAll({
             where: {
-                bookId: bookId
+                bookId
             }
-        });
+        })
 
         return new NextResponse(
-            JSON.stringify(bookReviews), 
+            JSON.stringify(reviews), 
             {status: 200}
         );
     } catch (error: any) {
         return new NextResponse(
-            "Error in Fetching Movie, message: " + error.message, 
+            "Error in Fetching Reviews, message: " + error.message, 
             { status: 500 }
         );
     }
