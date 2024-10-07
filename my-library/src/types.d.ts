@@ -1,5 +1,5 @@
 type Author = {
-    id: number;
+    id?: number;
     name: string;
     bio?: string;
     birthdate?: Date;
@@ -7,7 +7,7 @@ type Author = {
 }
 
 type Book = {
-    id: number;
+    id?: number;
     title: string;
     authorId: number;
     genre?: string;
@@ -19,7 +19,7 @@ type Book = {
 }
 
 type BookReview = {
-    id: number;
+    id?: number;
     bookId: number;
     review_text?: string;
     rating: number;
