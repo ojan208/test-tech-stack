@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import BookReviewRepository from "@/src/lib/repositories/BookReviewRepository";
 import { z } from "zod";
+import { createBookReview, getBookReview } from "@/src/lib/action/review";
 
 const prisma = new PrismaClient();
 const bookReviewValidation = z.object({
@@ -14,9 +15,9 @@ const bookReviewValidation = z.object({
 // Create
 export const POST = async (request: Request) => {
     try {
-        const requestBody = await request.json();
-        console.log(requestBody); 
-        const review = await new BookReviewRepository().add(requestBody, bookReviewValidation);
+        const requestData = await request.json();
+        console.log(requestData); 
+        const review = await createBookReview(requestData);
         // const review = await prisma.bookReview.create({
         //     data: requestBody
         // });
@@ -39,11 +40,7 @@ export const GET = async (request: Request, context: any) => {
         const bookId = Number(context.params['id']);
         console.log(bookId); // For Debugging Purposes
         
-        const reviews = await new BookReviewRepository().getAll({
-            where: {
-                bookId
-            }
-        })
+        const reviews = await getBookReview(bookId);
 
         return new NextResponse(
             JSON.stringify(reviews), 

@@ -3,32 +3,15 @@
 */
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { z } from "zod";
-import AuthorRepository from "@/src/lib/repositories/AuthorRepository";
+import { createAuthor, getAuthor } from "@/src/lib/action/author";
 
 const prisma = new PrismaClient();
-const authorValidation = z.object({
-    name: z.string().min(1).refine(async (current) => {
-        return (!await prisma.author.count({
-            where: {
-                name: current
-            }
-        }))
-    }, "Author Sudah Ada")
-});
 
 // Create
 export const POST = async (request: Request) => {
     try {
         const requestData = await request.json();
-        // console.log(body); // For Debugging Purposes
-        // await authorValidation.parseAsync(requestData);
-
-        // const author = await prisma.author.create({
-        //     data: requestData
-        // });
-
-        const author = await new AuthorRepository().add(requestData, authorValidation);
+        const author = await createAuthor(requestData)
 
         return new NextResponse(
             JSON.stringify(author), 
@@ -45,12 +28,7 @@ export const POST = async (request: Request) => {
 // Read
 export const GET = async () => {
     try {
-        const authors = await new AuthorRepository().getAll({
-            select: {
-                id: true,
-                name: true,
-            }
-        });
+        const authors = await getAuthor();
 
         return new NextResponse(
             JSON.stringify(authors),
