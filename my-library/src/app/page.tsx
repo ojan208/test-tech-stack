@@ -1,11 +1,167 @@
-import Image from "next/image";
-import { destroyBook, getBook } from "../lib/action/book";
+'use client'
+import { SubmitHandler, useForm, Controller } from "react-hook-form";
+import { destroyBook, getBook, createBook } from "../lib/action/book";
+import { getAuthor } from "../lib/action/author";
+import Edit from "@/components/Edit"
 
-export default async function Home() {
-  const bookData = await getBook();
-  console.log(bookData)
+import { 
+  Card, 
+  CardHeader, 
+  CardContent, 
+  CardDescription, 
+  CardTitle 
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { useEffect, useState } from "react";
+import { revalidatePath } from "next/cache";
+import { Trash2, PenLine } from "lucide-react";
+import { EditDialog } from "@/components/dialogs/EditDialog";
+
+export default function Home() {
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [bookData, setBookData] = useState<Book[]>();
+  const [authors, setAuthorData] = useState<Author[]>();
+  const [openEdit, setOpenEdit] = useState(false);
+  // const authors: any = []
+
+  async function loadDataBook() {
+    const books = await getBook();    
+    setBookData(books);
+  }
+
+  async function loadDataAuthor() {
+    const authors = await getAuthor();
+    setAuthorData(authors);
+  }
+
+  const handleOpenEdit = (id: number) => {
+    setEditDialogOpen(true);
+    setEditId(id);
+  }
+
+  const handleCloseEdit = () => {
+    setEditDialogOpen(false);
+    setEditId(null);
+  }
+
+  useEffect(() => {    
+    loadDataBook();  
+    loadDataAuthor();
+  }, [])
+  
+  const { control, register, handleSubmit, watch } = useForm<Book>();
+  const onSubmit: SubmitHandler<Book> = async (data) => {
+    // console.log(data);
+    const tempBook: Book = {
+      title: data.title,
+      authorId: Number(data.authorId),
+      genre: data.genre,
+      published_year: Number(data.published_year),
+      price: Number(data.price),
+      stock: Number(data.stock)
+    }
+    const createdBook = await createBook(tempBook);
+    if (!!createdBook) {
+      loadDataBook()
+    }
+  };
+  const onDelete = async (id: number | null) => {
+    if (!!id) {
+      console.log(id);
+      const deletedBook = await destroyBook(id!);
+      if (!!deletedBook) {
+        loadDataBook();
+      }
+    }
+  }
+  // console.log(watch())
+  
   return (
     <div>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="secondary">Add Book</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create a New Book</DialogTitle>
+            <DialogDescription>make a new book to be inserted to the database</DialogDescription>
+          </DialogHeader>
+          <Card className="w-[350px] mx-auto">
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="grid w-full items-center gap-4">
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="title">Title</Label>
+                    <Input {...register("title")} id="title" placeholder="Book Title" />
+                  </div>
+                  <Controller
+                    name="authorId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={ field.onChange }>
+                        <SelectTrigger id="authorId">
+                          <SelectValue placeholder="Select Author"/>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Author</SelectLabel>
+                            {
+                              authors?.map((author) => (
+                                <SelectItem value={author.id!.toString()}>{author.name} {author.id!.toString()}</SelectItem>
+                              ))
+                            }
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="genre">Genre</Label>
+                    <Input {...register("genre")} id="genre" placeholder="Genre of the Book" />
+                  </div>
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="published_year">Year Published</Label>
+                    <Input {...register("published_year")} id="published_year" placeholder="The Year the Book Got Published" />
+                  </div>
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="price">Price</Label>
+                    <Input {...register("price")} id="price" placeholder="Price of the Book" />
+                  </div>
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="stock">Stock</Label>
+                    <Input {...register("stock")} id="stock" placeholder="How Many Book is There" />
+                  </div>
+                </div>
+                <br />
+                <Button variant="outline">Cancel</Button>
+                <Button type="submit">Submit</Button>
+              </form>
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
+      
       <table cellPadding="10" cellSpacing="0" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', margin: 'auto'}}>
       <thead>
         <tr>
@@ -16,118 +172,35 @@ export default async function Home() {
         </tr>
       </thead>
       <tbody>
-        {bookData.map((row) => (
+        {bookData?.map((row) => (
           <tr>
             <td>{row.id}</td>
             <td>{row.title}</td>
             <td>{row.price}</td>
-            {/* <td>{row.id}</td> */}
             <td>
-              {row.id}
-              {/* <form action={destroyBook(row.id!)}>
-                <button type="submit">Remove</button>
-              </form>
-              <button>Update</button> <br/> */}
+              <Button onClick={() => {
+                onDelete(row.id || null)
+              }}
+              variant="ghost"
+              size="icon"
+              className="text-red">
+                <Trash2 />
+              </Button>
+              <Button onClick={() => {
+                handleOpenEdit(row.id!);
+                console.log(row.id)
+              }}
+              variant="ghost"
+              size="icon"
+              className="text-red">
+                <PenLine />
+              </Button>
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+    { isEditDialogOpen && <EditDialog id={editId} isOpen={isEditDialogOpen} onClose={handleCloseEdit} />}
     </div>
-    // <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-    //   <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-    //     <Image
-    //       className="dark:invert"
-    //       src="https://nextjs.org/icons/next.svg"
-    //       alt="Next.js logo"
-    //       width={180}
-    //       height={38}
-    //       priority
-    //     />
-    //     <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-    //       <li className="mb-2">
-    //         Get started by editing{" "}
-    //         <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-    //           app/page.tsx
-    //         </code>
-    //         .
-    //       </li>
-    //       <li>Save and see your changes instantly.</li>
-    //     </ol>
-
-    //     <div className="flex gap-4 items-center flex-col sm:flex-row">
-    //       <a
-    //         className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-    //         href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-    //         target="_blank"
-    //         rel="noopener noreferrer"
-    //       >
-    //         <Image
-    //           className="dark:invert"
-    //           src="https://nextjs.org/icons/vercel.svg"
-    //           alt="Vercel logomark"
-    //           width={20}
-    //           height={20}
-    //         />
-    //         Deploy now
-    //       </a>
-    //       <a
-    //         className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-    //         href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-    //         target="_blank"
-    //         rel="noopener noreferrer"
-    //       >
-    //         Read our docs
-    //       </a>
-    //     </div>
-    //   </main>
-    //   <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-    //     <a
-    //       className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-    //       href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       <Image
-    //         aria-hidden
-    //         src="https://nextjs.org/icons/file.svg"
-    //         alt="File icon"
-    //         width={16}
-    //         height={16}
-    //       />
-    //       Learn
-    //     </a>
-    //     <a
-    //       className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-    //       href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       <Image
-    //         aria-hidden
-    //         src="https://nextjs.org/icons/window.svg"
-    //         alt="Window icon"
-    //         width={16}
-    //         height={16}
-    //       />
-    //       Examples
-    //     </a>
-    //     <a
-    //       className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-    //       href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-    //       target="_blank"
-    //       rel="noopener noreferrer"
-    //     >
-    //       <Image
-    //         aria-hidden
-    //         src="https://nextjs.org/icons/globe.svg"
-    //         alt="Globe icon"
-    //         width={16}
-    //         height={16}
-    //       />
-    //       Go to nextjs.org →
-    //     </a>
-    //   </footer>
-    // </div>
   );
 }

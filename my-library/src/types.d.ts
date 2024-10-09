@@ -15,7 +15,7 @@ type Book = {
     price?: number;
     stock?: number;
 
-    author: Author;
+    author?: Author;
 }
 
 type BookReview = {
