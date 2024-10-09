@@ -40,7 +40,7 @@ export async function updateBook(id: number, formData: any) {
     const body = {
         ...formData
     }
-    console.log(body);
+    console.log(body, id);
     return await new BookRepository().update(id, body);
 }
 
