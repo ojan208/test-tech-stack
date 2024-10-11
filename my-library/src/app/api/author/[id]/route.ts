@@ -2,10 +2,7 @@
     This file is for Author per Id's API
 */
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { destroyAuthor, getAuthorDetail, updateAuthor } from "@/src/lib/action/author";
-
-const prisma = new PrismaClient();
 
 // Read
 export const GET = async (request: Request, context: any) => {

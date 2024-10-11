@@ -17,7 +17,8 @@ export default abstract class BaseRepository<A> {
             // console.log(body); // for debugging purposes
             await validator.parseAsync(body);
             const createdBook = await this.modelClient.create({
-                data: body
+                data: body, 
+                options
             });
             return createdBook;
         } catch (error: unknown) {
@@ -56,6 +57,7 @@ export default abstract class BaseRepository<A> {
                 where: {
                     id,
                 },
+                options
             });
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -77,7 +79,8 @@ export default abstract class BaseRepository<A> {
                 where: {
                     id,
                 },
-                data: body
+                data: body,
+                options
             })
 
             return updatedBook;
@@ -100,7 +103,8 @@ export default abstract class BaseRepository<A> {
             const deletedBook = await this.modelClient.delete({
                 where: {
                     id,
-                }
+                },
+                options
             });
     
             return deletedBook;

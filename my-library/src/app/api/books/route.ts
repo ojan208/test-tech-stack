@@ -2,10 +2,7 @@
     This file is for Book's API
 */
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { createBook, getBook } from "@/src/lib/action/book";
-
-const prisma = new PrismaClient();
 
 // Create
 export const POST = async (request: Request) => {

@@ -1,4 +1,4 @@
-import { SubmitHandler, useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { getAuthor } from "../../src/lib/action/author";
 import { Label } from "@/components/ui/label";
@@ -19,13 +19,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter
 } from "@/components/ui/dialog"
-import { PenLine } from "lucide-react";
 
 // import { destroyBook, getBook, createBook } from "../lib/action/book";
-import { getBookDetail, updateBook } from "@/src/lib/action/book";
+import { getBookDetail } from "@/src/lib/action/book";
 import onEditSubmit from "./EditSubmit";
 
 export function EditDialog({ id, isOpen, onClose }) {
@@ -54,7 +52,7 @@ export function EditDialog({ id, isOpen, onClose }) {
         loadDataAuthor();
         loadBook();
       }
-    }, [isOpen, id]);
+    }, [isOpen, id, loadBook]);
 
     useEffect(() => {
       if (book && authors) {
@@ -67,7 +65,7 @@ export function EditDialog({ id, isOpen, onClose }) {
         setValue("stock", book.stock);
         setLoading(false);
       }
-    }, [book, authors])
+    }, [book, authors, setValue])
 
     // console.log(bookId);
     if (isOpen) {
@@ -106,7 +104,7 @@ export function EditDialog({ id, isOpen, onClose }) {
                           <SelectLabel>Author</SelectLabel>
                           {
                             authors.map((author) => (
-                              <SelectItem value={author.id.toString()}>
+                              <SelectItem key={author.id} value={author.id.toString()}>
                                 {author.name}
                               </SelectItem>
                             ))

@@ -14,7 +14,7 @@ const onEditSubmit: SubmitHandler<Book> = async (data) => {
     }
 
     const updatedBook = await updateBook(data.id!, tempBook);
-    console.log(updateBook);
+    console.log(updatedBook);
 }
 
 export default onEditSubmit

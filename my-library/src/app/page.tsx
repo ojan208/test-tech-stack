@@ -5,10 +5,7 @@ import { getAuthor } from "../lib/action/author";
 
 import { 
   Card, 
-  CardHeader, 
   CardContent, 
-  CardDescription, 
-  CardTitle 
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -31,7 +28,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useEffect, useState } from "react";
-import { revalidatePath } from "next/cache";
 import { Trash2, PenLine } from "lucide-react";
 import { EditDialog } from "@/components/dialogs/EditDialog";
 
@@ -40,7 +36,6 @@ export default function Home() {
   const [editId, setEditId] = useState<number | null>(null);
   const [bookData, setBookData] = useState<Book[]>();
   const [authors, setAuthorData] = useState<Author[]>();
-  const [openEdit, setOpenEdit] = useState(false);
   // const authors: any = []
 
   async function loadDataBook() {
@@ -68,7 +63,7 @@ export default function Home() {
     loadDataAuthor();
   }, [])
   
-  const { control, register, handleSubmit, watch } = useForm<Book>();
+  const { control, register, handleSubmit } = useForm<Book>();
   const onSubmit: SubmitHandler<Book> = async (data) => {
     // console.log(data);
     const tempBook: Book = {
@@ -127,7 +122,7 @@ export default function Home() {
                             <SelectLabel>Author</SelectLabel>
                             {
                               authors?.map((author) => (
-                                <SelectItem value={author.id!.toString()}>{author.name} {author.id!.toString()}</SelectItem>
+                                <SelectItem key={author.id} value={author.id!.toString()}>{author.name} {author.id!.toString()}</SelectItem>
                               ))
                             }
                           </SelectGroup>
@@ -172,7 +167,7 @@ export default function Home() {
       </thead>
       <tbody>
         {bookData?.map((row) => (
-          <tr>
+          <tr key={row.id}>
             <td>{row.id}</td>
             <td>{row.title}</td>
             <td>{row.price}</td>
