@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import BookReviewRepository from "@/src/lib/repositories/BookReviewRepository";
 import { getBookReviewDetail, updateBookReview } from "@/src/lib/action/review";
-
-const prisma = new PrismaClient();
 
 // read 
 export const GET = async (request: Request, context: any) => {

@@ -2,10 +2,7 @@
     This file is for Author's API
 */
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { createAuthor, getAuthor } from "@/src/lib/action/author";
-
-const prisma = new PrismaClient();
 
 // Create
 export const POST = async (request: Request) => {

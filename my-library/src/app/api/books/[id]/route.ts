@@ -2,11 +2,7 @@
     This file is for Book per Id's API
 */
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { destroyBook, getBookDetail, updateBook } from "@/src/lib/action/book";
-import BookRepository from "@/src/lib/repositories/BookRepository";
-
-const prisma = new PrismaClient();
 
 // Read
 export const GET = async (request: Request, context: any) => {

@@ -2,15 +2,8 @@
     This file is for Book Review's API
 */
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import BookReviewRepository from "@/src/lib/repositories/BookReviewRepository";
-import { z } from "zod";
 import { createBookReview, getBookReview } from "@/src/lib/action/review";
 
-const prisma = new PrismaClient();
-const bookReviewValidation = z.object({
-    review_text: z.string().min(1)
-});
 
 // Create
 export const POST = async (request: Request) => {
