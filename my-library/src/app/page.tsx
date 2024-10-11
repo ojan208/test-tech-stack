@@ -2,7 +2,6 @@
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { destroyBook, getBook, createBook } from "../lib/action/book";
 import { getAuthor } from "../lib/action/author";
-import Edit from "@/components/Edit"
 
 import { 
   Card, 
