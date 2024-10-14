@@ -17,7 +17,7 @@ export default abstract class BaseRepository<A> {
             // console.log(body); // for debugging purposes
             await validator.parseAsync(body);
             if (Object.keys(options).length === 0){
-                return await new this.modelClient.create({
+                return await this.modelClient.create({
                     data: body,
                 })
             }
