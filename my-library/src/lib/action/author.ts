@@ -2,10 +2,11 @@
 
 import AuthorRepository from "../repositories/AuthorRepository"
 import { z } from "zod"
+import prisma from "@/src/db";
 
 const authorValidation = z.object({
     name: z.string().min(1).refine(async (current) => {
-        return (!await prisma.author.count({
+        return (!await prisma?.author.count({
             where: {
                 name: current
             }
