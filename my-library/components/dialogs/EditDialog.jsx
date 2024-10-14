@@ -38,7 +38,6 @@ export function EditDialog({ id, isOpen, onClose }) {
 
     async function loadDataAuthor() {
         const authors = await getAuthor();
-        console.log("test");
         setAuthorData(authors);
     }
 
@@ -52,20 +51,37 @@ export function EditDialog({ id, isOpen, onClose }) {
         loadDataAuthor();
         loadBook();
       }
-    }, [isOpen, id, loadBook]);
+    }, [isOpen, id]);
 
     useEffect(() => {
       if (book && authors) {
-        setValue("title", book.title);
-        setValue("authorId", book.authorId.toString(), { shouldValidate: true });
-        console.log(book.authorId)
-        setValue("genre", book.genre);
-        setValue("published_year", book.published_year);
-        setValue("price", book.price);
-        setValue("stock", book.stock);
+        // Get current form values
+        const currentValues = watch();
+    
+        // Only update form values if they are different from what's already in the form
+        if (currentValues.title !== book.title) {
+          setValue("title", book.title);
+        }
+        if (currentValues.authorId !== book.authorId.toString()) {
+          setValue("authorId", book.authorId.toString(), { shouldValidate: true });
+        }
+        if (currentValues.genre !== book.genre) {
+          setValue("genre", book.genre);
+        }
+        if (currentValues.published_year !== book.published_year) {
+          setValue("published_year", book.published_year);
+        }
+        if (currentValues.price !== book.price) {
+          setValue("price", book.price);
+        }
+        if (currentValues.stock !== book.stock) {
+          setValue("stock", book.stock);
+        }
+    
         setLoading(false);
       }
-    }, [book, authors, setValue])
+    }, [book, authors, setValue]);
+    
 
     // console.log(bookId);
     if (isOpen) {
