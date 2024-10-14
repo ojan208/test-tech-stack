@@ -16,11 +16,17 @@ export default abstract class BaseRepository<A> {
         try {
             // console.log(body); // for debugging purposes
             await validator.parseAsync(body);
-            const createdBook = await this.modelClient.create({
+            if (Object.keys(options).length === 0){
+                return await new this.modelClient.create({
+                    data: body,
+                })
+            }
+
+            return await this.modelClient.create({
                 data: body, 
-                options
+                ...options
             });
-            return createdBook;
+            // return createdBook;
         } catch (error: unknown) {
             if (error instanceof Error) {
                 throw new Error("An Error Has Occured When Trying to Create the Object, detail: " + error.message);
@@ -51,13 +57,22 @@ export default abstract class BaseRepository<A> {
         }
     }
 
-    getById(id: number, options: Record<string, any> = {}): Promise<A> {
+    async getById(id: number, options: Record<string, any> = {}): Promise<A> {
         try {
+            if (Object.keys(options).length !== 0) {
+                console.log("Test")
+                return this.modelClient.findUnique({
+                    where: {
+                        id,
+                    }
+                });
+            }
+            console.log(Object.keys(options).length)
             return this.modelClient.findUnique({
                 where: {
                     id,
-                },
-                options
+                }, 
+                ...options
             });
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -74,16 +89,24 @@ export default abstract class BaseRepository<A> {
             if (!id) {
                 throw new Error("No ID or request Data Found");
             }
-
-            const updatedBook = await this.modelClient.update({
+            
+            if (Object.keys(options).length === 0) {
+                console.log("Test")
+                return await this.modelClient.update({
+                    where: {
+                        id,
+                    },
+                    data: body,
+                    ...options
+                })
+            }
+            return await this.modelClient.update({
                 where: {
                     id,
                 },
                 data: body,
-                options
+                ...options
             })
-
-            return updatedBook;
         } catch (error: unknown) {
             if (error instanceof Error) {
                 throw new Error("An Error Has Occured When Trying to Delete the Object, detail: " + error.message);
@@ -99,15 +122,23 @@ export default abstract class BaseRepository<A> {
             if (!id) {
                 throw new Error("No ID Found");
             }
-    
-            const deletedBook = await this.modelClient.delete({
+            console.log("hello")
+
+            if (Object.keys(options).length === 0) {
+                console.log("Test")
+                return await this.modelClient.delete({
+                    where: {
+                        id,
+                    }
+                });
+            }
+            console.log(Object.keys(options).length)
+            return await this.modelClient.delete({
                 where: {
                     id,
                 },
-                options
-            });
-    
-            return deletedBook;
+                ...options
+            })
         } catch (error: unknown) {
             if (error instanceof Error) {
                 throw new Error("An Error Has Occured When Trying to Delete the Object, detail: " + error.message);
