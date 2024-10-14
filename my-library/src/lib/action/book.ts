@@ -6,7 +6,7 @@ import { z } from "zod"
 
 const bookValidation = z.object({
     title: z.string().min(1).refine(async (current) => {
-        return (!await prisma!.book.count({
+        return (!await prisma?.book.count({
             where: {
                 title: current
             }
