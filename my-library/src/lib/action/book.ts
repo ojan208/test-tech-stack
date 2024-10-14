@@ -2,11 +2,11 @@
 
 import BookRepository from "../repositories/BookRepository"
 import { z } from "zod"
-import prisma from "@/src/db";
+// import prisma from "@/src/db";
 
 const bookValidation = z.object({
     title: z.string().min(1).refine(async (current) => {
-        return (!await prisma.book.count({
+        return (!await prisma!.book.count({
             where: {
                 title: current
             }
